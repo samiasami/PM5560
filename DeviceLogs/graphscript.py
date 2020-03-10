@@ -2,10 +2,10 @@
 #   Title: Graph Script
 #   Author: Samia Sami
 #	Date: June 17, 2019
-# 	Description: This program will will fetch one year data from the Postgres and store it in Pandas DataFrame. 
+# 	Description: This program will fetch one year data from the Postgres and store it in Pandas DataFrame. 
 # 	             Using the Pandas DataFrame, it will then plot the graphs.
 ##**********************************************************************************************************
-##Fetch the data and then plot the graphs
+
 import pandas as pd
 import dash
 import dash_core_components as dcc
