@@ -1,3 +1,12 @@
+##**********************************************************************************************************
+#   Title: Data Script
+#   Author: Samia Sami
+#	Date: June 17, 2019
+# 	Description: This program will read the recently exported .csv file based on Date modified into
+# 	             a Pandas DataFrame. Using Pandas DataFrame, it will then convert the data values into 
+# 	             the correct format. It will then export this correctly formatted data values into 
+# 	             the Postgres.
+##**********************************************************************************************************
 
 import pandas as pd
 import os
@@ -8,14 +17,8 @@ import numpy as np
 import logging
 logging.basicConfig(filename="test.log", level=logging.DEBUG,format="%(asctime)s:%(levelname)s:%(message)s")
 
-
+#checks if port 433 is in use
 import socket
-##s = socket.socket()
-##if s.connect_ex(('169.254.0.13', 443)) == 0:
-##    logging.debug("The port 443 is listening.")
-##else:
-##    logging.debug("The port 443 is not listening. Please make sure DeviceLogExport.exe script is running.")
-
 def tryPort(port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     result = False
@@ -28,7 +31,7 @@ def tryPort(port):
     return result
 
 tryPort(443)
-
+#converts a number to binary
 def float_bin(number): 
     whole = int(number)
     res = bin(whole)
@@ -45,7 +48,8 @@ def frac (s, base):
         return (int(s, base))
     places = len(s)-dotPos-1
     return (1.0*int(s[:dotPos]+s[dotPos+1:],base)/(base**places))
-  
+
+#converts the number from Float32 to Base 10
 def IEEE754(n) : 
     
     if n < 0 : 
@@ -71,7 +75,8 @@ def IEEE754(n) :
         mantissa="".join(str(x) for x in (b+a+list))
         mantissa=frac(str(mantissa),2)
         return (round(((-1)**sign) * (2**(exponent-127)*mantissa),3))
-  
+
+#Takes a Float32 array as an input and returns Base 10 array
 def IEEE754_(array):
     mylist = []
     rows=array.shape[0]
@@ -82,13 +87,13 @@ def IEEE754_(array):
     return np.transpose([mat])
 
     
-      
+#converts the number from Int16 to Base 10      
 def int16todecimal(n):
     whole = float_bin (n)
     whole=whole[2:]
     return(round(int(whole, 2),3))
 
-
+#Takes a Int16 array as an input and returns Base 10 array
 def int16_(array):
     mylist = []
     rows=array.shape[0]
@@ -98,7 +103,7 @@ def int16_(array):
     mat = np.array(mylist)
     return np.transpose([mat])
 
-
+#Power Factor conditions as per PM5560 Modbus Register List 
 def valueabove1(n):
     PF_Val = 2 - n;
     return PF_Val
@@ -116,7 +121,7 @@ def elsecase(n):
     return PF_Val
 
 
-
+#Takes a raw power factor values array as an input and returns correct power factor array
 def powerfactor(array):
     mylist = []
     rows=array.shape[0]
@@ -136,7 +141,7 @@ def powerfactor(array):
     return np.array(mylist)
 
 
-
+#selects the latest file in the folder
 try:
     folder = os.path.abspath(os.getcwd())
     list_of_files = glob.glob('*.csv')
@@ -150,10 +155,10 @@ try:
     engine = create_engine('postgresql://postgres:teampower@localhost:5436', paramstyle='format')
     df = pd.read_csv(filename,skiprows=7,usecols=range(2,17))
     logging.debug("File has been read and stored into the dataframe.")
-
+    #converts the Float32 values of powerfactor to decimal base 10
     pf=IEEE754_(df['Power Factor Total'])
 
-
+    #create a reformatted dataframe
     dataset=pd.DataFrame(np.concatenate((IEEE754_(df['Current Average'].to_numpy()),IEEE754_(df['Voltage B-C'].to_numpy()),IEEE754_(df['Voltage A-B'].to_numpy()),IEEE754_(df['Voltage L-L'].to_numpy()), IEEE754_(df['Active Power Total'].to_numpy()), IEEE754_(df['Apparent Power Total'].to_numpy()), IEEE754_(df['Reactive Power Total'].to_numpy()),
     int16_(df['Active Energy Delivered (KWh)'].to_numpy()),int16_(df['Active Energy Received (KWh)'].to_numpy()),int16_(df['Apparent Energy Delivered (KVAh)'].to_numpy()),powerfactor(pf), int16_(df['Apparent Energy Received (KVAh)'].to_numpy()),
     int16_(df['Reactive Energy Delivered (KVARh)'].to_numpy()), int16_(df['Reactive Energy Received (KVARh)'].to_numpy())), axis=1))
@@ -164,7 +169,7 @@ try:
     horizontal_stack = pd.concat([df['Local Time Stamp'], dataset], axis=1)
     logging.debug("Dataframe is properly formatted to be loaded into the database.")
 
-
+    #upload the dataframe on the database
     horizontal_stack.to_sql('meterdata', con=engine, if_exists='append',index=False)
     logging.debug("Dataframe successfully loaded into the database.")
 
