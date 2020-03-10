@@ -1,7 +1,7 @@
 ##**********************************************************************************************************
 #   Title: Graph Script
 #   Author: Samia Sami
-#	Date: June 17, 2019
+# 	Date: March 9, 2020
 # 	Description: This program will fetch one year data from the Postgres and store it in Pandas DataFrame. 
 # 	             Using the Pandas DataFrame, it will then plot the graphs.
 ##**********************************************************************************************************
