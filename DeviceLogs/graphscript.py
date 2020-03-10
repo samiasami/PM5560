@@ -1,4 +1,10 @@
-
+##**********************************************************************************************************
+#   Title: Graph Script
+#   Author: Samia Sami
+#	Date: June 17, 2019
+# 	Description: This program will will fetch one year data from the Postgres and store it in Pandas DataFrame. 
+# 	             Using the Pandas DataFrame, it will then plot the graphs.
+##**********************************************************************************************************
 ##Fetch the data and then plot the graphs
 import pandas as pd
 import dash
@@ -12,7 +18,7 @@ query = """
 select * from public.meterdata order by "Local Time Stamp" DESC Limit 525600"""
 # execute the query
 cur.execute(query)
-# retrieve the whole result set
+# retrieve an annual result set
 data = cur.fetchall()
 
 # close cursor and connection
@@ -20,7 +26,7 @@ cur.close()
 conn.close()
 
 
-
+#change the data from tuple to dataframes
 
 df = pd.DataFrame(data, columns=['Local Time Stamp', 'Current Average','Voltage B-C', 'Voltage A-B', 'Voltage L-L', 'Active Power Total', 'Apparent Power Total','Reactive Power Total','Active Energy Delivered (KWh)','Active Energy Received (KWh)','Apparent Energy Delivered (KVAh)',
                    'Power Factor Total', 'Apparent Energy Received (KVAh)','Reactive Energy Delivered (KVARh)','Reactive Energy Received (KVARh)'])
