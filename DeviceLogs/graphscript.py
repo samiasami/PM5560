@@ -9,19 +9,22 @@ import psycopg2
 conn = psycopg2.connect(database="postgres", user='postgres', password='teampower',port='5436')
 cur = conn.cursor()
 query = """
-select *  FROM meterdata """
+select * from public.meterdata order by "Local Time Stamp" DESC Limit 525600"""
 # execute the query
 cur.execute(query)
 # retrieve the whole result set
 data = cur.fetchall()
+
 # close cursor and connection
 cur.close()
 conn.close()
 
 
 
+
 df = pd.DataFrame(data, columns=['Local Time Stamp', 'Current Average','Voltage B-C', 'Voltage A-B', 'Voltage L-L', 'Active Power Total', 'Apparent Power Total','Reactive Power Total','Active Energy Delivered (KWh)','Active Energy Received (KWh)','Apparent Energy Delivered (KVAh)',
                    'Power Factor Total', 'Apparent Energy Received (KVAh)','Reactive Energy Delivered (KVARh)','Reactive Energy Received (KVARh)'])
+
 
 app = dash.Dash()
 
@@ -119,4 +122,4 @@ app.layout = html.Div(children=[
 ])
 
 if __name__ == '__main__':
-    app.run_server(debug=False, port=5091)
+    app.run_server(debug=False, port=5093)
