@@ -32,9 +32,9 @@ def tryPort(port):
 
 tryPort(443)
 #converts a number to binary
-def float_bin(number): 
-    whole = int(number)
-    res = bin(whole)
+def float_bin(n): 
+    s = bin(n & int("1"*32, 2))[2:]
+    res=("{0:0>%s}" % (32)).format(s)
     return res   
 
 def decimal_converter(num):   
@@ -54,7 +54,6 @@ def IEEE754(n) :
     
     if n < 0 : 
         sign = 1
-        n = n * (-1) 
         sign=1
     else:
         sign = 0
@@ -62,7 +61,7 @@ def IEEE754(n) :
     list=[]
     if n % 1 == 0:
         whole = float_bin (n)
-        whole=whole[2:]
+        whole=whole[1:]
         from decimal import Decimal
         exponent=whole[0:8]
         exponent=int(exponent,2)
@@ -126,9 +125,12 @@ def powerfactor(array):
     mylist = []
     rows=array.shape[0]
 
+
     for i in range(rows):
         value=(array)[i]
-        if value>1:
+        if value[0]==-5.104235503814077e+38:
+            mylist.append([0])
+        elif value>1:
             mylist.append(valueabove1((array)[i]))
         elif value<(-1):
             mylist.append(valueless1((array)[i]))
@@ -157,6 +159,7 @@ try:
     logging.debug("File has been read and stored into the dataframe.")
     #converts the Float32 values of powerfactor to decimal base 10
     pf=IEEE754_(df['Power Factor Total'])
+
 
     #create a reformatted dataframe
     dataset=pd.DataFrame(np.concatenate((IEEE754_(df['Current Average'].to_numpy()),IEEE754_(df['Voltage B-C'].to_numpy()),IEEE754_(df['Voltage A-B'].to_numpy()),IEEE754_(df['Voltage L-L'].to_numpy()), IEEE754_(df['Active Power Total'].to_numpy()), IEEE754_(df['Apparent Power Total'].to_numpy()), IEEE754_(df['Reactive Power Total'].to_numpy()),
